@@ -3,7 +3,7 @@ import colorsys
 from math import tan, sin, cos
 
 
-plt.figure(figsize=(15,9))
+plt.figure(figsize=(15, 9))
 plt.grid(True)
 plt.xlabel('x, м')
 plt.ylabel('y, м')
@@ -13,6 +13,8 @@ B = 0.2
 e = 1.602176487 * 10**(-19)
 m = 9.10938215 * 10**(-31)
 c = 299792458
+
+epsil = 10**(-3)
 dt = 10**(-14)
 
 # p_min = ((0.5 * 10**6 * e / c)**2 - (m * c)**2)**0.5
@@ -21,6 +23,7 @@ dt = 10**(-14)
 E_min = 0.5 * 10**6
 E_max = 10 * 10**6
 step_E = (E_max - E_min) / 40
+delta = step_E / 3
 
 x0 = 0
 x_max = 0.002
