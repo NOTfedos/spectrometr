@@ -15,14 +15,14 @@ m = 9.10938215 * 10**(-31)
 c = 299792458
 
 epsil = 10**(-3)
-dt = 10**(-14)
+dt = 10**(-12)
 
 # p_min = ((0.5 * 10**6 * e / c)**2 - (m * c)**2)**0.5
 # p_max = ((10 * 10**6 * e / c)**2 - (m * c)**2)**0.5
 
 E_min = 0.5 * 10**6
 E_max = 10 * 10**6
-step_E = (E_max - E_min) / 40
+step_E = (E_max - E_min) / 20
 delta = step_E / 3
 
 x0 = 0
@@ -48,10 +48,7 @@ while alp0 < alp_max:
 
         E += step_E
 
-        if ((E * e / c)**2 - (m * c)**2) < 0:
-            continue
-        else:
-            p0 = ((E * e / c)**2 - (m * c)**2)**0.5
+        p0 = ((E * e / c) ** 2 + 2 * E * e * m) ** 0.5
 
         x = x0
         y = 0

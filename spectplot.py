@@ -33,10 +33,7 @@ while x0 < x_max:
 
         E += step_E
 
-        if ((E * e / c)**2 - (m * c)**2) < 0:
-            continue
-        else:
-            p0 = ((E * e / c)**2 - (m * c)**2)**0.5
+        p0 = ((E * e / c)**2 + 2 * E * e * m)**0.5
 
         x = x0
         y = 0
@@ -69,6 +66,7 @@ while x0 < x_max:
         if flag:
             plt.text(x, y, str(round(E * 10 ** (-6), 2)) + "МэВ")
         plt.plot(arr_gr[0], arr_gr[1], color=colorsys.hsv_to_rgb(col, 1, 1), linewidth=0.3)
+
     flag = False
 
 plt.show()
