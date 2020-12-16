@@ -56,14 +56,14 @@ def update_coords(px, py):
 
 
 
-FOCUS = True
+FOCUS = False
 
 B = 0.2
 e = 1.602176487 * 10**(-19)
 m = 9.10938215 * 10**(-31)
 c = 299792458
 
-epsil = 5 * 10**(-3)
+epsil = 1 * 10**(-3)
 dt = 10**(-12)
 
 # p_min = ((0.5 * 10**6 * e / c)**2 - (m * c)**2)**0.5
@@ -83,10 +83,11 @@ alp_min = -a / 2
 alp_max = a / 2
 step_alp = (alp_max - alp_min) / 10
 
-E = E_min
+# TODO: изменить на E_min
+E = E_max
 arr_fig = [[], []]  # график точек фокуса
 
-while E < E_max:
+while E <= E_max:
 
     alp0 = alp_min
     flag = True
@@ -115,57 +116,63 @@ while E < E_max:
             x += dx
             y += dy
 
-            # старые вычисления
-            # x += vx * dt  # просчитываем координаты
-            # y += vy * dt
-
-
             # запоминаем точки для графика
             arr_gr[0].append(x)
             arr_gr[1].append(y)
 
-
-            # если в зоне магнитного поля
-            # if (x < 0.04) and (y < 0.15):
-            #     '''
-            #         старая версия
-            #     '''
-            #
-            #     # dpx_dt = e * v * B * py / p  # находим изменение импульса
-            #     # dpy_dt = -e * v * B * px / p
-            #     #
-            #     # px += dpx_dt * dt  # изменяем импульс
-            #     # py += dpy_dt * dt
-            #
-            #     '''
-            #         новая версия
-            #     '''
-            #
-            #     # k1_x = e * B * py / sqrt(m*m + (px/c)**2 + (py/c)**2) * dt
-            #     # k1_y = -e * B * px / sqrt(m*m + (px/c)**2 + (py/c)**2) * dt
-            #     #
-            #     # k2_x = e * B * (py + k1_y/2) / sqrt(m*m + ((px + k1_x/2)/c)**2 + ((py + k1_y/2)/c)**2) * dt
-            #     # k2_y = -e * B * (px + k1_x/2) / sqrt(m*m + ((px + k1_x/2) / c) ** 2 + ((py + k1_y/2) / c) ** 2) * dt
-            #     #
-            #     # k3_x = e * B * (py + k2_y/2) / sqrt(m*m + ((px + k2_x/2)/c)**2 + ((py + k2_y/2)/c)**2) * dt
-            #     # k3_y = -e * B * (px + k2_x/2) / sqrt(m*m + ((px + k2_x/2)/c)**2 + ((py + k2_y/2)/c)**2) * dt
-            #     #
-            #     # k4_x = e * B * (py + k3_y) / sqrt(m*m + ((px + k3_x) / c) ** 2 + ((py + k3_y) / c) ** 2) * dt
-            #     # k4_y = -e * B * (px + k3_x) / sqrt(m*m + ((px + k3_x) / c) ** 2 + ((py + k3_y) / c) ** 2) * dt
-            #     #
-            #     # px += (k1_x + 2*(k2_x + k3_x) + k4_x)/6
-            #     # py += (k1_y + 2*(k2_y + k3_y) + k4_y)/6
-            #
-            #     dpx, dpy = update_p(px, py)
-            #     px += dpx
-            #     py += dpy
-
-
         arr_e.append(arr_gr)  # заносим в массив точек траекторий электронов с одинаковой энергией
 
         col = (E - E_min) / (E_max - E_min)
+        print(col)
         if flag:
             plt.text(x, y, str(round(E * 10 ** (-6), 2)) + "МэВ")
+
+        plt.plot(arr_gr[0], arr_gr[1], color=colorsys.hsv_to_rgb(col, 1, 1), linewidth=0.3)  # строим траекторию
+        flag = False
+
+    # добавление точек старым способом
+    alp0 = alp_min
+    flag = True
+    print("IN OLD")
+    while alp0 < alp_max:
+        print("KEK")
+        alp0 += step_alp
+
+        x0 = x_max / 2 * (1 + tan(alp0) / tan(a / 2))
+
+        p0 = ((E * e / c) ** 2 + 2 * E * e * m) ** 0.5
+
+        x = x0  # выставляем начальные координаты
+        y = 0
+        px = p0 * sin(alp0)
+        py = p0 * cos(alp0)
+        arr_gr = [[], []]
+        # print(int((E - E_min) / (E_max - E_min) * 100), '%', sep='')
+        while (-0.5 <= x < x_border) and (0 <= y < y_border):  # просчитываем траекторию в пределах уст. границ
+            p = (px ** 2 + py ** 2) ** 0.5
+
+            vx = px / (m ** 2 + (p / c) ** 2) ** 0.5  # просчитываем скорость
+            vy = py / (m ** 2 + (p / c) ** 2) ** 0.5
+            v = (vx ** 2 + vy ** 2) ** 0.5
+
+            x += vx * dt  # просчитываем координаты
+            y += vy * dt
+
+            # запоминаем точки для графика
+            arr_gr[0].append(x)
+            arr_gr[1].append(y)
+            if (x < 0.04) and (y < 0.15):
+                dpx = e * v * B * py / p  # находим изменение импульса
+                dpy = -e * v * B * px / p
+                px += dpx * dt  # изменяем импульс
+                py += dpy * dt
+
+        arr_e.append(arr_gr)  # заносим в массив точек траекторий электронов с одинаковой энергией
+
+        col = 0.5
+        print(col)
+        if flag:
+            plt.text(x, y, str(round(E_min * 10 ** (-6), 2)) + "МэВ")
 
         plt.plot(arr_gr[0], arr_gr[1], color=colorsys.hsv_to_rgb(col, 1, 1), linewidth=0.3)  # строим траекторию
         flag = False
